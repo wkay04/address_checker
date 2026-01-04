@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assembly District 34 Address Checker</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .search-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        #addressInput {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        #addressInput:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        #searchBtn {
+            padding: 12px 24px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #searchBtn:hover {
+            background-color: #45a049;
+        }
+
+        #searchBtn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #result {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            min-height: 50px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        #result.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        #result.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        #result.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 2px solid #bee5eb;
+        }
+
+        #map {
+            height: 600px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4CAF50;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>NYS Assembly District 34 Address Checker</h1>
+
+        <div class="search-box">
+            <div class="input-group">
+                <input type="text" id="addressInput" placeholder="Enter an address (e.g., 123 Main St, New York, NY)" />
+                <button id="searchBtn">Search</button>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Searching...</p>
+        </div>
+
+        <div id="result"></div>
+
+        <div id="map"></div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        const API_KEY = 'AIzaSyAI9mTTZGXfNopOlLyybn4troC09LyB1Xk';
+
+        // Initialize map
+        const map = L.map('map').setView([40.7128, -74.0060], 12);
+
+        // Add tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        let ad34Layer = null;
+        let markerLayer = null;
+
+        // Load Assembly District 34 GeoJSON
+        fetch('nys_assembly_districts.geojson')
+            .then(response => response.json())
+            .then(data => {
+                // Find Assembly District 34
+                const ad34Feature = data.features.find(f => f.properties.District === 34);
+
+                if (ad34Feature) {
+                    ad34Layer = L.geoJSON(ad34Feature, {
+                        style: {
+                            fillColor: 'blue',
+                            fillOpacity: 0.2,
+                            color: 'blue',
+                            weight: 2
+                        }
+                    }).addTo(map);
+
+                    ad34Layer.bindPopup(`<b>Assembly District 34</b><br>${ad34Feature.properties.Name}`);
+
+                    // Fit map to AD 34 bounds
+                    map.fitBounds(ad34Layer.getBounds());
+                }
+            })
+            .catch(error => {
+                console.error('Error loading GeoJSON:', error);
+            });
+
+        // Geocode function
+        async function geocodeAddress(address) {
+            const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${API_KEY}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.status === 'OK' && data.results.length > 0) {
+                    const location = data.results[0].geometry.location;
+                    return {
+                        lat: location.lat,
+                        lng: location.lng,
+                        formattedAddress: data.results[0].formatted_address
+                    };
+                } else {
+                    throw new Error('Address not found');
+                }
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        // Check if point is in polygon
+        function pointInPolygon(point, polygon) {
+            const x = point[0], y = point[1];
+            let inside = false;
+
+            for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+                const xi = polygon[i][0], yi = polygon[i][1];
+                const xj = polygon[j][0], yj = polygon[j][1];
+
+                const intersect = ((yi > y) !== (yj > y))
+                    && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+                if (intersect) inside = !inside;
+            }
+
+            return inside;
+        }
+
+        // Check if point is in AD 34
+        async function checkDistrict(lat, lng) {
+            try {
+                const response = await fetch('nys_assembly_districts.geojson');
+                const data = await response.json();
+
+                for (const feature of data.features) {
+                    const coords = feature.geometry.coordinates;
+
+                    // Handle MultiPolygon
+                    for (const polygon of coords) {
+                        for (const ring of polygon) {
+                            if (pointInPolygon([lng, lat], ring)) {
+                                return {
+                                    district: feature.properties.District,
+                                    name: feature.properties.Name
+                                };
+                            }
+                        }
+                    }
+                }
+
+                return null;
+            } catch (error) {
+                console.error('Error checking district:', error);
+                return null;
+            }
+        }
+
+        // Search button handler
+        document.getElementById('searchBtn').addEventListener('click', async () => {
+            const address = document.getElementById('addressInput').value.trim();
+
+            if (!address) {
+                showResult('Please enter an address', 'error');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('searchBtn').disabled = true;
+            document.getElementById('result').textContent = '';
+            document.getElementById('result').className = '';
+
+            try {
+                // Geocode the address
+                const location = await geocodeAddress(address);
+
+                // Check which district
+                const district = await checkDistrict(location.lat, location.lng);
+
+                // Remove old marker
+                if (markerLayer) {
+                    map.removeLayer(markerLayer);
+                }
+
+                // Determine marker color and message
+                let iconColor, message, resultClass;
+
+                if (district) {
+                    if (district.district === 34) {
+                        iconColor = 'green';
+                        message = `YES! This address is in Assembly District 34 (${district.name})`;
+                        resultClass = 'success';
+                    } else {
+                        iconColor = 'red';
+                        message = `NO. This address is in Assembly District ${district.district} (${district.name}), not AD 34`;
+                        resultClass = 'error';
+                    }
+                } else {
+                    iconColor = 'gray';
+                    message = 'Address is not within any NYS Assembly District';
+                    resultClass = 'info';
+                }
+
+                // Add marker
+                const icon = L.divIcon({
+                    html: `<i class="fas fa-map-marker-alt" style="font-size: 36px; color: ${iconColor};"></i>`,
+                    iconSize: [36, 36],
+                    iconAnchor: [18, 36],
+                    popupAnchor: [0, -36],
+                    className: ''
+                });
+
+                markerLayer = L.marker([location.lat, location.lng], { icon: icon })
+                    .addTo(map)
+                    .bindPopup(`<b>${location.formattedAddress}</b><br>${message}`)
+                    .openPopup();
+
+                // Zoom to location
+                map.setView([location.lat, location.lng], 14);
+
+                // Show result
+                showResult(message, resultClass);
+
+            } catch (error) {
+                showResult('Error: ' + error.message, 'error');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('searchBtn').disabled = false;
+            }
+        });
+
+        // Enter key to search
+        document.getElementById('addressInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('searchBtn').click();
+            }
+        });
+
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = message;
+            resultDiv.className = type;
+        }
+    </script>
+</body>
+</html>

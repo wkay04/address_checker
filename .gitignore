@@ -1,0 +1,16 @@
+# R files
+.Rhistory
+.RData
+.Rproj.user
+*.Rproj
+
+# Environment variables
+.Renviron
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*~
+*.swp
