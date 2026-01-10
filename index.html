@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assembly District 34 Address Checker</title>
+    <title>Are you in AD 34?</title>
 
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -318,7 +318,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>NYS Assembly District 34 Address Checker</h1>
+        <h1>Are you in AD 34?</h1>
 
         <!-- Single Address Search -->
         <div id="single-tab" class="tab-content active">
@@ -372,7 +372,7 @@
                 const ad34Feature = data.features.find(f => f.properties.District === 34);
 
                 if (ad34Feature) {
-                    console.log('District 34 found:', ad34Feature.properties.Name);
+                    console.log('District 34 found');
 
                     ad34Layer = L.geoJSON(ad34Feature, {
                         style: {
@@ -382,8 +382,6 @@
                             weight: 3
                         }
                     }).addTo(map);
-
-                    ad34Layer.bindPopup(`<b>Assembly District 34</b>`);
 
                     // Fit map to AD 34 bounds
                     map.fitBounds(ad34Layer.getBounds());
@@ -452,10 +450,7 @@
                     for (const polygon of coords) {
                         for (const ring of polygon) {
                             if (pointInPolygon([lng, lat], ring)) {
-                                return {
-                                    inDistrict34: true,
-                                    name: ad34Feature.properties.Name
-                                };
+                                return { inDistrict34: true };
                             }
                         }
                     }
