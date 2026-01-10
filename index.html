@@ -12,6 +12,41 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
     <style>
+        @font-face {
+            font-family: 'BW Haas Grotesk';
+            src: url('BW Haas Grotesk Text-55 Roman.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'BW Haas Grotesk';
+            src: url('BW Haas Grotesk Text-56 Italic.otf') format('opentype');
+            font-weight: normal;
+            font-style: italic;
+        }
+
+        @font-face {
+            font-family: 'BW Haas Grotesk';
+            src: url('BW Haas Grotesk Head-55 Roman.otf') format('opentype');
+            font-weight: 600;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'BW Haas Grotesk';
+            src: url('BW Haas Grotesk Head-76 Bold Italic.otf') format('opentype');
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        @font-face {
+            font-family: 'Milliffigh';
+            src: url('Milliffigh.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -19,8 +54,8 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f5f5f5;
+            font-family: 'BW Haas Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #ffaa3b;
         }
 
         .container {
@@ -30,16 +65,53 @@
         }
 
         h1 {
-            color: #333;
+            font-family: 'Milliffigh', 'BW Haas Grotesk', sans-serif;
+            color: white;
             margin-bottom: 20px;
             text-align: center;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: white;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            background-color: #f5f5f5;
+        }
+
+        .tab.active {
+            border-bottom-color: #ffaa3b;
+            font-weight: bold;
+            color: #ffaa3b;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         .search-box {
-            background: white;
+            background: transparent;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 20px;
         }
 
@@ -51,29 +123,32 @@
         #addressInput {
             flex: 1;
             padding: 12px;
-            border: 2px solid #ddd;
+            border: 3px solid #42939E;
             border-radius: 4px;
             font-size: 16px;
+            background-color: white;
         }
 
         #addressInput:focus {
             outline: none;
-            border-color: #4CAF50;
+            border-color: #42939E;
+            box-shadow: 0 0 0 3px rgba(66, 147, 158, 0.3);
         }
 
         #searchBtn {
             padding: 12px 24px;
-            background-color: #4CAF50;
+            background-color: #42939E;
             color: white;
             border: none;
             border-radius: 4px;
             font-size: 16px;
             cursor: pointer;
             transition: background-color 0.3s;
+            font-weight: 600;
         }
 
         #searchBtn:hover {
-            background-color: #45a049;
+            background-color: #357882;
         }
 
         #searchBtn:disabled {
@@ -82,32 +157,31 @@
         }
 
         #result {
-            background: white;
+            background: transparent;
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
             min-height: 50px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             font-size: 18px;
             font-weight: 500;
         }
 
         #result.success {
-            background-color: #d4edda;
+            background-color: rgba(255, 255, 255, 0.9);
             color: #155724;
-            border: 2px solid #c3e6cb;
+            border: 3px solid #28a745;
         }
 
         #result.error {
-            background-color: #f8d7da;
+            background-color: rgba(255, 255, 255, 0.9);
             color: #721c24;
-            border: 2px solid #f5c6cb;
+            border: 3px solid #dc3545;
         }
 
         #result.info {
-            background-color: #d1ecf1;
+            background-color: rgba(255, 255, 255, 0.9);
             color: #0c5460;
-            border: 2px solid #bee5eb;
+            border: 3px solid #17a2b8;
         }
 
         #map {
@@ -120,11 +194,13 @@
             display: none;
             text-align: center;
             padding: 10px;
+            color: white;
+            font-weight: 600;
         }
 
         .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #4CAF50;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #42939E;
             border-radius: 50%;
             width: 30px;
             height: 30px;
@@ -136,27 +212,132 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .file-upload {
+            border: 2px dashed #ddd;
+            padding: 30px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-upload:hover {
+            border-color: #ffaa3b;
+            background-color: #f9f9f9;
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: #ffaa3b;
+            margin-bottom: 10px;
+        }
+
+        .results-table {
+            width: 100%;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .results-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .results-table th,
+        .results-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .results-table th {
+            background-color: #ffaa3b;
+            color: white;
+            font-weight: bold;
+        }
+
+        .results-table tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .status-yes {
+            color: #155724;
+            font-weight: bold;
+        }
+
+        .status-no {
+            color: #721c24;
+            font-weight: bold;
+        }
+
+        .download-btn {
+            margin-top: 20px;
+            padding: 12px 24px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .download-btn:hover {
+            background-color: #0b7dda;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background-color: #f3f3f3;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #ffaa3b;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>NYS Assembly District 34 Address Checker</h1>
 
-        <div class="search-box">
-            <div class="input-group">
-                <input type="text" id="addressInput" placeholder="Enter an address (e.g., 123 Main St, New York, NY)" />
-                <button id="searchBtn">Search</button>
+        <!-- Single Address Search -->
+        <div id="single-tab" class="tab-content active">
+            <div class="search-box">
+                <div class="input-group">
+                    <input type="text" id="addressInput" placeholder="Enter an address (e.g., 123 Main St, New York, NY)" />
+                    <button id="searchBtn">Search</button>
+                </div>
             </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Searching...</p>
+            </div>
+
+            <div id="result"></div>
+
+            <div id="map"></div>
         </div>
-
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>Searching...</p>
-        </div>
-
-        <div id="result"></div>
-
-        <div id="map"></div>
     </div>
 
     <!-- Leaflet JS -->
@@ -178,29 +359,42 @@
 
         // Load Assembly District 34 GeoJSON
         fetch('nys_assembly_districts.geojson')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to load GeoJSON file');
+                }
+                return response.json();
+            })
             .then(data => {
+                console.log('GeoJSON loaded, features:', data.features.length);
+
                 // Find Assembly District 34
                 const ad34Feature = data.features.find(f => f.properties.District === 34);
 
                 if (ad34Feature) {
+                    console.log('District 34 found:', ad34Feature.properties.Name);
+
                     ad34Layer = L.geoJSON(ad34Feature, {
                         style: {
-                            fillColor: 'blue',
-                            fillOpacity: 0.2,
-                            color: 'blue',
-                            weight: 2
+                            fillColor: '#42939E',
+                            fillOpacity: 0.4,
+                            color: '#42939E',
+                            weight: 3
                         }
                     }).addTo(map);
 
-                    ad34Layer.bindPopup(`<b>Assembly District 34</b><br>${ad34Feature.properties.Name}`);
+                    ad34Layer.bindPopup(`<b>Assembly District 34</b>`);
 
                     // Fit map to AD 34 bounds
                     map.fitBounds(ad34Layer.getBounds());
+                } else {
+                    console.error('Assembly District 34 not found in GeoJSON data');
+                    alert('Error: Could not find Assembly District 34 in the data file.');
                 }
             })
             .catch(error => {
                 console.error('Error loading GeoJSON:', error);
+                console.error('Full error details:', error.message, error.stack);
             });
 
         // Geocode function
@@ -249,23 +443,25 @@
                 const response = await fetch('nys_assembly_districts.geojson');
                 const data = await response.json();
 
-                for (const feature of data.features) {
-                    const coords = feature.geometry.coordinates;
+                // Only check for District 34
+                const ad34Feature = data.features.find(f => f.properties.District === 34);
+                if (ad34Feature) {
+                    const coords = ad34Feature.geometry.coordinates;
 
                     // Handle MultiPolygon
                     for (const polygon of coords) {
                         for (const ring of polygon) {
                             if (pointInPolygon([lng, lat], ring)) {
                                 return {
-                                    district: feature.properties.District,
-                                    name: feature.properties.Name
+                                    inDistrict34: true,
+                                    name: ad34Feature.properties.Name
                                 };
                             }
                         }
                     }
                 }
 
-                return null;
+                return { inDistrict34: false };
             } catch (error) {
                 console.error('Error checking district:', error);
                 return null;
@@ -302,20 +498,14 @@
                 // Determine marker color and message
                 let iconColor, message, resultClass;
 
-                if (district) {
-                    if (district.district === 34) {
-                        iconColor = 'green';
-                        message = `YES! This address is in Assembly District 34 (${district.name})`;
-                        resultClass = 'success';
-                    } else {
-                        iconColor = 'red';
-                        message = `NO. This address is in Assembly District ${district.district} (${district.name}), not AD 34`;
-                        resultClass = 'error';
-                    }
+                if (district && district.inDistrict34) {
+                    iconColor = 'green';
+                    message = `YES! This address is in Assembly District 34`;
+                    resultClass = 'success';
                 } else {
-                    iconColor = 'gray';
-                    message = 'Address is not within any NYS Assembly District';
-                    resultClass = 'info';
+                    iconColor = 'red';
+                    message = `NO. This address is not in Assembly District 34`;
+                    resultClass = 'error';
                 }
 
                 // Add marker
